@@ -1,23 +1,23 @@
 import express, { Express, Request, Response } from 'express';
-import dotenv from 'dotenv';
 import routes from './routes';
-
+import { BASE_PATH } from './utils/constants';
+import config from './config/config';
+import mongoose from 'mongoose';
 export class App {
 
     private app: Express;
     private port: number;
 
     constructor() {
-        dotenv.config();
         this.app = express();
         this.port = this.getPort();
         this.setupMiddleware();
+        this.setupDatabase();
         this.setupRoutes();
     }
 
     private getPort(): number {
-        const portValue = process.env.PORT || '5001';
-        const port = parseInt(portValue, 10);
+        const port = parseInt(config.port.toString(), 10);
         if (isNaN(port)) {
             throw new Error(`Invalid PORT value: ${port}`)
         }
@@ -29,8 +29,15 @@ export class App {
         this.app.use(express.urlencoded({ extended: true }));
     }
 
+    private setupDatabase(): void {
+        mongoose.connect(config.db, {
+            maxPoolSize: 10
+        }).then(() => {
+            console.log("Database connected successfully...")
+        }).catch(err => console.error('Error connecting to MongoDB', err));
+    }
     private setupRoutes(): void {
-        this.app.use('/api/v1',routes);
+        this.app.use(BASE_PATH, routes);
     }
 
     public start(): void {
