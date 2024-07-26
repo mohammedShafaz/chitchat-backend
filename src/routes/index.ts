@@ -9,7 +9,7 @@ class Routes {
         this.initializeRouter();
     }
     private initializeRouter(): void {
-        this.router.use('/users', userRoutes)
+        this.router.use('/user', userRoutes)
     }
 }
 export default new Routes().router;

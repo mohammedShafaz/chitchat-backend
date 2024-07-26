@@ -6,7 +6,9 @@ export interface IUser extends Document {
     username: string;
     email: string;
     password: string;
-    isAuthenticated: boolean
+    isEmailVerified: boolean;
+    profilePicture: string;
+    profileBio: string;
 }
 
 const userSchema = new Schema<IUser>({
@@ -32,8 +34,16 @@ const userSchema = new Schema<IUser>({
         type: String,
         required: true
     },
-    isAuthenticated: {
+    isEmailVerified: {
         type: Boolean,
+        required: false
+    },
+    profilePicture: {
+        type: String,
+        required: false
+    },
+    profileBio: {
+        type: String,
         required: false
     }
 }, { timestamps: true });
