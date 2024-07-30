@@ -36,15 +36,13 @@ const userSchema = new Schema<IUser>({
     },
     isEmailVerified: {
         type: Boolean,
-        required: false
+        default:false
     },
     profilePicture: {
         type: String,
-        required: false
     },
     profileBio: {
         type: String,
-        required: false
     }
 }, { timestamps: true });
 

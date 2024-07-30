@@ -23,4 +23,5 @@ const authMiddleware = (req: CustomRequest, res: Response, next: NextFunction) =
     }
 };
 
+
 export default authMiddleware;
