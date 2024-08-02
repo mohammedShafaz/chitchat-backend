@@ -30,21 +30,20 @@ class UserController {
                 res.status(401).json({ message: "Incorrect password" });
                 return;
             }
-            if (user.isEmailVerified === false) {
+            if (!user.isEmailVerified) {
                 res.status(401).json({ message: "Please verify your email" });
                 return;
             }
-            const tokenPayload = { firstName: user.firstName, lastName: user.lastName, userId: user._id, email: user.email };
+            const tokenPayload = { id: user._id,firstName: user.firstName, lastName: user.lastName,  username: user.username, email: user.email };
             const token = jwt.sign(tokenPayload, config.jwt_secret, { expiresIn: '24h' })
             res.status(200).json({
                 status: true,
                 message: "login successful",
-                token,
-                user
+                token
             })
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: "User fetching failed" })
+            res.status(500).json({ error: "User login failed" })
         }
 
     }
@@ -90,7 +89,7 @@ class UserController {
 
             const isVerified = await otpService.verifyOtp(email, otp);
             if (isVerified) {
-                const user = await User.findOneAndUpdate({email:email}, { isEmailVerified: true });
+                const user = await User.findOneAndUpdate({ email: email }, { isEmailVerified: true });
                 if (!user) {
                     res.status(404).json({ message: "User not found." });
                     return;

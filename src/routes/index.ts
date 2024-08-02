@@ -1,5 +1,6 @@
 import { Router } from "express";
 import userRoutes from "./user.router";
+import postRouter from "./post.router";
 
 class Routes {
 
@@ -9,7 +10,9 @@ class Routes {
         this.initializeRouter();
     }
     private initializeRouter(): void {
-        this.router.use('/user', userRoutes)
+        this.router.get('/', (req, res) => { res.send("Welcome to chit-chat") })
+        this.router.use('/user', userRoutes);
+        this.router.use('/posts', postRouter)
     }
 }
 export default new Routes().router;

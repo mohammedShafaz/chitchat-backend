@@ -3,6 +3,8 @@ import routes from './routes';
 import { BASE_PATH } from './utils/constants';
 import config from './config/config';
 import mongoose from 'mongoose';
+import path from 'path';
+import cors from 'cors';
 export class App {
 
     private app: Express;
@@ -10,6 +12,7 @@ export class App {
 
     constructor() {
         this.app = express();
+        this.app.use(cors())
         this.port = this.getPort();
         this.setupMiddleware();
         this.setupDatabase();
@@ -38,6 +41,7 @@ export class App {
     }
     private setupRoutes(): void {
         this.app.use(BASE_PATH, routes);
+        this.app.use('/assets', express.static(path.join(__dirname, 'assets')));
     }
 
     public start(): void {
