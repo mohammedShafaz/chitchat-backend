@@ -2,6 +2,8 @@ import { Router } from "express";
 import postController from "../controllers/post.controller";
 import authMiddleware from "../middlewares/authMiddleware";
 import upload from "../utils/fileUpload";
+import { validateParamsId } from "../middlewares/validatorMiddleware";
+
 
 class PostRouter {
     public router: Router;
@@ -12,6 +14,7 @@ class PostRouter {
     }
     private routes(): void {
         this.router.post('/',authMiddleware,upload.array('media',10),postController.createPost);
+        this.router.get('/:id',validateParamsId,postController.getPost);
     }
 
 }

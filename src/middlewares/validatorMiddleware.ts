@@ -1,4 +1,4 @@
-import { body, check, validationResult } from "express-validator";
+import { body, check, param, validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
 
 const validate = (req: Request, res: Response, next: NextFunction) => {
@@ -23,4 +23,8 @@ export const validateEmailVerification = [
     body('email').isEmail().withMessage('Invalid Email address'),
     body('otp').notEmpty().withMessage('otp is required'),
     validate
+]
+
+export const validateParamsId=[
+    param('id').notEmpty().withMessage("post id is required"), validate
 ]

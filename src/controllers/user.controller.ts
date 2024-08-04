@@ -6,6 +6,8 @@ import otpService from '../utils/otpService'
 import emailService from "../utils/emailService";
 import jwt from "jsonwebtoken";
 import config from "../config/config";
+import { CustomRequest } from "../utils/types";
+import mongoose from "mongoose";
 class UserController {
 
     public async userLogin(req: Request, res: Response): Promise<void> {
@@ -34,7 +36,7 @@ class UserController {
                 res.status(401).json({ message: "Please verify your email" });
                 return;
             }
-            const tokenPayload = { id: user._id,firstName: user.firstName, lastName: user.lastName,  username: user.username, email: user.email };
+            const tokenPayload = { id: user._id, firstName: user.firstName, lastName: user.lastName, username: user.username, email: user.email };
             const token = jwt.sign(tokenPayload, config.jwt_secret, { expiresIn: '24h' })
             res.status(200).json({
                 status: true,
@@ -82,7 +84,54 @@ class UserController {
         }
     }
 
+    public async getCurrentUser(req: CustomRequest, res: Response): Promise<void> {
+        try {
+            const userId = req.user?.id;
+            if (!userId) {
+                res.status(401).json({ message: 'Please login' });
+                return;
+            }
+            const user = await User.findById(userId)
+                .populate({ path: 'posts', options: { sort: { 'createdAt': -1 } } })
+                .populate('followers')
+                .populate('following')
+            if (!user) {
+                res.status(404).json({ message: 'User not found' })
+                return;
+            }
+            res.status(200).json({ status: true, message: 'User details fetched successfully', user });
+            return;
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "User fetching failed" });
 
+        }
+    }
+
+    public async getUserById(req: Request, res: Response): Promise<void> {
+        try {
+            const userId = new mongoose.Types.ObjectId(req.params.id);
+            if (!userId) {
+                res.status(401).json({ message: 'Please login' });
+                return;
+            }
+
+            const user = await User.findById(userId)
+                .populate({ path: 'posts', options: { sort: { 'createdAt': -1 } } })
+                .populate('followers')
+                .populate('following')
+            if (!user) {
+                res.status(404).json({ message: 'User not found' })
+                return;
+            }
+            res.status(200).json({ status: true, message: 'User details fetched successfully', user });
+            return;
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "User fetching failed" });
+
+        }
+    }
     public async userVerification(req: Request, res: Response): Promise<void> {
         try {
             const { email, otp } = req.body;
