@@ -28,3 +28,12 @@ export const validateEmailVerification = [
 export const validateParamsId=[
     param('id').notEmpty().withMessage("post id is required"), validate
 ]
+export const validateComment=[
+    param('id').notEmpty().withMessage("post id is required"),
+    body('comment').notEmpty().withMessage('Comment is required'),
+    validate
+]
+
+export const validateRemoveComment=[
+    param()
+]

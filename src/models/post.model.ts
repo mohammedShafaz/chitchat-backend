@@ -19,7 +19,7 @@ const postSchema = new Schema<IPost>({
     },
     media: [{ type: String, required: true }],
     likes: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    comments: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+    comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }]
 }, { timestamps: true });
 
 const Post= model<IPost>('Post',postSchema);

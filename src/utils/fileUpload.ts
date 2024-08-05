@@ -29,7 +29,7 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: any) => {
     if (allowedMimeType.includes(file.mimetype)) {
         cb(null, true)
     }
-    else { cb(new Error('Invalid file type')) }
+    else { return cb(new Error('Invalid file type, only images and videos allowed')) }
 }
 const upload = multer({ storage, fileFilter });
 
