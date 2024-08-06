@@ -14,8 +14,9 @@ class UserRoutes {
         this.router.post("/register", validateUserRegistration, UserController.createUser);
         this.router.get("/", authMiddleware, UserController.getCurrentUser);
         this.router.get("/:id", validateParamsId, UserController.getUserById);
-        this.router.post("/verify-otp", validateEmailVerification, userController.userVerification)
-
+        this.router.post('/follow/:id',authMiddleware,validateParamsId,userController.followUser);
+        this .router.post('/unfollow/:id',authMiddleware,validateParamsId,userController.unFollowUser);
+        this.router.post("/verify-otp", validateEmailVerification, userController.userVerification);
     }
 }
 

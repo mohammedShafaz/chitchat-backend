@@ -7,7 +7,7 @@ import emailService from "../utils/emailService";
 import jwt from "jsonwebtoken";
 import config from "../config/config";
 import { CustomRequest } from "../utils/types";
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 class UserController {
 
     public async userLogin(req: Request, res: Response): Promise<void> {
@@ -132,6 +132,64 @@ class UserController {
 
         }
     }
+
+    public async followUser(req: CustomRequest, res: Response): Promise<void> {
+        try {
+            const userId = req.user?.id;
+            const followUserId = req.params.id as unknown as ObjectId;
+            const user = await User.findById(userId);
+            const followUser = await User.findById(followUserId);
+            if (!user || !followUser) {
+                res.status(404).json({ message: "User not found" });
+                return;
+            }
+            if (user.following.includes(followUserId)) {
+                res.status(400).json({ message: 'You are already following this person' });
+                return;
+            }
+            await User.findByIdAndUpdate(userId,
+                { '$push': { following: followUserId } }
+            );
+            await User.findByIdAndUpdate(followUserId,
+                { '$push': { followers: userId } }
+            );
+            res.status(200).json({ message: 'You are started following.' });
+            return;
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Failed to follow user" });
+
+        }
+    }
+
+    public async unFollowUser(req: CustomRequest, res: Response): Promise<void> {
+        try {
+            const userId = req.user?.id;
+            const unFollowUserId = req.params.id as unknown as ObjectId;
+            const user = await User.findById(userId);
+            const unFollowUser = await User.findById(unFollowUserId);
+            if (!user || !unFollowUser) {
+                res.status(404).json({ message: 'User not found' });
+                return;
+            }
+            if (!user.following.includes(unFollowUserId)) {
+                res.status(400).json({ message: 'You are not following this person' });
+                return;
+            }
+            await User.findByIdAndUpdate(userId,
+                { '$pull': { following: unFollowUserId } }
+            );
+            await User.findByIdAndUpdate(unFollowUserId,
+                { '$pull': { followers: userId } }
+            );
+            res.status(200).json({ message: 'You unFollowed this person' });
+            return;
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Failed to unFollow user" });
+        }
+    }
+
     public async userVerification(req: Request, res: Response): Promise<void> {
         try {
             const { email, otp } = req.body;
