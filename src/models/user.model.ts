@@ -9,7 +9,7 @@ export interface IUser extends Document {
     isEmailVerified: boolean;
     profilePicture: string;
     profileBio: string;
-    coverPhoto:string;
+    coverPicture:string;
     posts: Schema.Types.ObjectId[];
     followers: Schema.Types.ObjectId[];
     following: Schema.Types.ObjectId[];
@@ -50,11 +50,11 @@ const userSchema = new Schema<IUser>({
     },
     profileBio: {
         type: String,
-        default:'http://localhost:5000/assets/Sample_Cover_photo.png'
-    },
-    coverPhoto:{
-        type:String,
         default:''
+    },
+    coverPicture:{
+        type:String,
+        default:'http://localhost:5000/assets/Sample_Cover_photo.png'
     },
     posts: [
         { type: Schema.Types.ObjectId, ref: 'Post' }

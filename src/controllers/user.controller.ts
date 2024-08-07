@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import User from "../models/user.model";
 import bcrypt from 'bcrypt'
-import { hashSalt, EMAIL_PURPOSE } from "../utils/constants";
+import { hashSalt, EMAIL_PURPOSE, baseUrl } from "../utils/constants";
 import otpService from '../utils/otpService'
 import emailService from "../utils/emailService";
 import jwt from "jsonwebtoken";
 import config from "../config/config";
-import { CustomRequest } from "../utils/types";
+import { CustomRequest, ImageUrl } from "../utils/types";
 import mongoose, { ObjectId } from "mongoose";
 class UserController {
 
@@ -49,11 +49,27 @@ class UserController {
         }
 
     }
+    private uploadImage = (files: { [fieldname: string]: Express.Multer.File[] }): ImageUrl => {
 
+        const profilePicturePath = files?.profilePicture ? files.profilePicture[0].path : undefined;
+        const coverPicturePath = files?.coverPicture ? files?.coverPicture[0].path : undefined;
+        const profilePictureUrl = profilePicturePath ? `${baseUrl}/images/${profilePicturePath.split('/').pop()}` : undefined;
+        const coverPictureUrl = coverPicturePath ? `${baseUrl}/images/${coverPicturePath.split('/').pop()}` : undefined;
+
+        return { profilePictureUrl, coverPictureUrl };
+
+    }
 
     public async createUser(req: Request, res: Response): Promise<void> {
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] };
         try {
-            const { firstName, lastName, username, email, password } = req.body;
+            const { firstName, lastName, username, email, password, profileBio } = req.body;
+
+            const profilePicturePath = files?.profilePicture ? files.profilePicture[0].path : undefined;
+            const coverPicturePath = files?.coverPicture ? files?.coverPicture[0].path : undefined;
+            const profilePictureUrl = profilePicturePath ? `${baseUrl}/images/${profilePicturePath.split('/').pop()}` : undefined;
+            const coverPictureUrl = coverPicturePath ? `${baseUrl}/images/${coverPicturePath.split('/').pop()}` : undefined;
+
             const existingEmail = await User.findOne({ email: email });
             if (existingEmail) {
                 res.status(400).json({ message: "User with this email already existing" });
@@ -70,7 +86,10 @@ class UserController {
                 lastName,
                 username,
                 email,
-                password: hashedPassword
+                password: hashedPassword,
+                profilePicture: profilePictureUrl,
+                profileBio: profileBio ? profileBio : '',
+                coverPicture: coverPictureUrl
             })
             await userData.save();
             const otp = otpService.generateOtp();
@@ -81,6 +100,74 @@ class UserController {
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: "User registration failed" });
+        }
+    }
+
+    public async updateUser(req: CustomRequest, res: Response): Promise<void> {
+        try {
+            const userId = req.user?.id;
+            const { firstName, lastName, profileBio } = req.body;
+            const user = await User.findById(userId);
+            if (!user) {
+                res.status(404).json({ message: "User not found" });
+                return;
+            }
+            firstName ? user.firstName = firstName : user.firstName;
+            lastName ? user.lastName = lastName : user.lastName;
+            profileBio ? user.profileBio = profileBio : user.profileBio;
+            await user.save();
+            res.status(200).json({ message: "User updated successfully", user });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Failed to update user" });
+        }
+    }
+    public async updateProfilePicture(req: CustomRequest, res: Response): Promise<void> {
+        try {
+            const userId = req.user?.id;
+            const user = await User.findById(userId);
+            if (!user) {
+                res.status(404).json({ message: "User not found" });
+                return;
+            }
+            if (!req.file) {
+                res.status(400).json({ message: "Please upload an image" });
+                return;
+            }
+
+            const profilePicturePath = req.file ? req.file.path : undefined;
+            const profilePictureUrl = profilePicturePath ? `${baseUrl}/profilePictures/${profilePicturePath.split('/').pop()}` : undefined;
+
+            if (profilePictureUrl) {
+                user.profilePicture = profilePictureUrl
+            }
+            await user.save();
+            res.status(200).json({ message: "Profile picture updated successfully", user });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Failed to update user profile picture" });
+        }
+    }
+    public async updateCoverPicture(req: CustomRequest, res: Response): Promise<void> {
+        try {
+            const userId = req.user?.id;
+            const user = await User.findById(userId);
+            if (!user) {
+                res.status(404).json({ message: "User not found" });
+                return;
+            }
+
+            const coverPicturePath =  req.file ? req.file.path : undefined;
+            const coverPictureUrl = coverPicturePath ? `${baseUrl}/coverPictures/${coverPicturePath.split('/').pop()}` : undefined;
+            if (coverPictureUrl) {
+                user.coverPicture = coverPictureUrl;
+            }
+            await user.save();
+            res.status(200).json({ message: "Cover picture updated successfully", user });
+
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Failed to update user cover picture" });
         }
     }
 

@@ -7,7 +7,11 @@ import { Request } from 'express';
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         let dir = '';
-        if (file.mimetype.startsWith('image/')) {
+        if (file.fieldname === 'profilePicture') {
+            dir = join(__dirname, '..', 'assets', 'uploads', 'profilePictures');
+        } else if (file.fieldname === 'coverPicture') {
+            dir = join(__dirname, '..', 'assets', 'uploads', 'coverPictures');
+        } else if (file.mimetype.startsWith('image/')) {
             dir = join(__dirname, '..', 'assets', 'uploads', 'images');
         } else if (file.mimetype.startsWith('video/')) {
             dir = join(__dirname, '..', 'assets', 'uploads', 'videos');
