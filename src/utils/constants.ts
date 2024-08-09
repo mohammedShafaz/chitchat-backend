@@ -8,4 +8,6 @@ export const EMAIL_PURPOSE = {
     reset_pass: 'reset password',
     forgot_pass: 'forgot password'
 }
+
 export const baseUrl = `http://localhost:${config.port}/assets/uploads`;
+

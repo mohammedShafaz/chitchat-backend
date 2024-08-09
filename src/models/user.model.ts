@@ -1,19 +1,6 @@
 import { Schema, Document, model } from "mongoose";
+import { IUser } from "../utils/types";
 
-export interface IUser extends Document {
-    firstName: string;
-    lastName: string;
-    username: string;
-    email: string;
-    password: string;
-    isEmailVerified: boolean;
-    profilePicture: string;
-    profileBio: string;
-    coverPicture:string;
-    posts: Schema.Types.ObjectId[];
-    followers: Schema.Types.ObjectId[];
-    following: Schema.Types.ObjectId[];
-}
 
 const userSchema = new Schema<IUser>({
     firstName: {
@@ -28,13 +15,13 @@ const userSchema = new Schema<IUser>({
         type: String,
         required: true,
         unique: true,
-        index:true
+        index: true
     },
     email: {
         type: String,
         required: true,
         unique: true,
-        index:true
+        index: true
     },
     password: {
         type: String,
@@ -46,15 +33,15 @@ const userSchema = new Schema<IUser>({
     },
     profilePicture: {
         type: String,
-        default:'http://localhost:5000/assets/default_profile_picture.jpg'
+        default: 'http://localhost:5000/assets/default_profile_picture.jpg'
     },
     profileBio: {
         type: String,
-        default:''
+        default: ''
     },
-    coverPicture:{
-        type:String,
-        default:'http://localhost:5000/assets/Sample_Cover_photo.png'
+    coverPicture: {
+        type: String,
+        default: 'http://localhost:5000/assets/Sample_Cover_photo.png'
     },
     posts: [
         { type: Schema.Types.ObjectId, ref: 'Post' }
@@ -64,8 +51,12 @@ const userSchema = new Schema<IUser>({
     ],
     following: [
         { type: Schema.Types.ObjectId, ref: 'User' }
+    ],
+    friendRequest: [
+        { type: Schema.Types.ObjectId, ref: 'FriendRequest' }
     ]
 }, { timestamps: true });
+
 
 const User = model<IUser>('User', userSchema);
 
