@@ -73,10 +73,10 @@ class FriendsController {
             await friendRequest.save();
 
             const senderUpdate = {
-                $addToSet: { following: friendRequest.receiver },
+                $push: { following: friendRequest.receiver },
             };
             const receiverUpdate = {
-                $addToSet: { followers: friendRequest.receiver },
+                $push: { followers: friendRequest.sender },
             };
 
             await User.findByIdAndUpdate(friendRequest.sender, senderUpdate, { new: true });
@@ -134,11 +134,60 @@ class FriendsController {
             await FriendRequest.findByIdAndDelete(friendRequestId);
             await session.commitTransaction();
             session.endSession();
-       
+
             res.status(200).json({ message: 'Friend request declined successfully' });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: "Failed to decline friend request" })
+        }
+    }
+
+    public async getFriendRequests(req: CustomRequest, res: Response): Promise<void> {
+        try {
+            console.log("getFriendRequest triggered...");
+
+            const userId = req.user?.id;
+            const objectIdUserId = new mongoose.Types.ObjectId(userId);
+            const query = [
+                {
+                  $match: {
+                    receiver: objectIdUserId,
+                  },
+                },
+                {
+                  $lookup: {
+                    from: 'users',
+                    localField: 'sender',
+                    foreignField: '_id',
+                    as: 'senderDetails',
+                  },
+                },
+                {
+                  $unwind: '$senderDetails',
+                },
+                {
+                  $project: {
+                    _id: 1,
+                    senderId: '$sender',
+                    senderUsername: '$senderDetails.username',
+                    senderProfilePicture: '$senderDetails.profilePicture',
+                    requestStatus:'$status'
+                  },
+                },
+              ];
+
+            const friendRequest = await FriendRequest.aggregate(query);
+            if (!friendRequest) {
+                res.status(404).json({ message: 'No friend request found' });
+                return;
+            }
+            res.status(200).json({
+                message: "Friend request fetched successfully",
+                friendRequest
+            })
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Failed to fetch friend request list' })
         }
     }
 }

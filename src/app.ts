@@ -5,18 +5,22 @@ import config from './config/config';
 import mongoose from 'mongoose';
 import path from 'path';
 import cors from 'cors';
+import io from './socket';
+import http from 'http';
+import { initializeSocketEvents } from './socket/socketEvents';
 export class App {
 
     private app: Express;
     private port: number;
-
+    private server: http.Server;
     constructor() {
         this.app = express();
-        this.app.use(cors())
+        this.server = http.createServer(this.app);
         this.port = this.getPort();
         this.setupMiddleware();
         this.setupDatabase();
         this.setupRoutes();
+        this.setupSocket();
     }
 
     private getPort(): number {
@@ -30,6 +34,7 @@ export class App {
     private setupMiddleware(): void {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
+        this.app.use(cors())
     }
 
     private setupDatabase(): void {
@@ -43,9 +48,13 @@ export class App {
         this.app.use(BASE_PATH, routes);
         this.app.use('/assets', express.static(path.join(__dirname, 'assets')));
     }
-
+    private setupSocket():void{
+        io.attach(this.server);
+        initializeSocketEvents(io);
+    }
+    
     public start(): void {
-        this.app.listen(this.port, () => {
+        this.server.listen(this.port, () => {
             console.log(`Server is running at http://localhost:${this.port}`);
         })
     }

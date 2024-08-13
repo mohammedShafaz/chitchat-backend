@@ -39,3 +39,33 @@ export interface ImageUrl {
     profilePictureUrl: string | undefined;
     coverPictureUrl: string | undefined;
 }
+
+export interface IMessage extends Document{
+    sender: Schema.Types.ObjectId;
+    receiver: Schema.Types.ObjectId;
+    content:string;
+    type:string;
+    mediaUrl:string;
+    status:string;
+    readBy:Schema.Types.ObjectId[];
+    timestamp:Date;
+    deleted:boolean;
+    conversationId:Schema.Types.ObjectId;
+}
+
+export interface IConversation extends Document{
+    participants:Schema.Types.ObjectId[];
+    isGroup:boolean;
+    groupName:string;
+    lastMessage:Schema.Types.ObjectId;
+}
+export interface IMessageData{
+    senderId:string;
+    receiverId:string;
+    message:string;
+}
+export interface IMediaData{
+    senderId:string;
+    receiverId:string;
+    mediaUrl:string;
+}

@@ -12,6 +12,7 @@ class FriendRequestRoute {
         this.routes();
     }
     private routes(): void {
+        this.router.get('/list',authMiddleware,friendsController.getFriendRequests)
         this.router.post('/send-request/:id', authMiddleware, validateParamsId, friendsController.sendFriendRequest);
         this.router.post('/accept-request/:id', authMiddleware, validateParamsId, friendsController.acceptFriendRequest);
         this.router.post('/decline-request/:id', authMiddleware, validateParamsId, friendsController.declineFriendRequest);

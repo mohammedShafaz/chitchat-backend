@@ -4,3 +4,14 @@ export enum FriendRequestStatus {
     REJECTED = 'rejected'
 }
 
+export enum MessageStatus {
+    SEND = 'send',
+    DELIVERED = 'delivered',
+    SEEN = 'seen'
+}
+
+export enum MessageType{
+    TEXT='text',
+    IMAGE='image',
+    VIDEO='video'
+}
