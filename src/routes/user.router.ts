@@ -10,7 +10,7 @@ class UserRoutes {
         this.routes();
     }
     private routes(): void {
-        this.router.get("/login", UserController.userLogin);
+        this.router.post("/login", UserController.userLogin);
         this.router.post("/register", upload.fields([{ name: 'profilePicture', maxCount: 1 }, { name: 'coverPicture', maxCount: 1 }]), validateUserRegistration, UserController.createUser);
         this.router.get("/", authMiddleware, UserController.getCurrentUser);
         this.router.get("/:id", validateParamsId, UserController.getUserById);

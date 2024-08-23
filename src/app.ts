@@ -34,7 +34,7 @@ export class App {
     private setupMiddleware(): void {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
-        this.app.use(cors())
+        this.app.use(cors<Request>())
     }
 
     private setupDatabase(): void {
@@ -45,7 +45,11 @@ export class App {
         }).catch(err => console.error('Error connecting to MongoDB', err));
     }
     private setupRoutes(): void {
+        // Base path
         this.app.use(BASE_PATH, routes);
+
+
+        // Static path update
         this.app.use('/assets', express.static(path.join(__dirname, 'assets')));
     }
     private setupSocket():void{

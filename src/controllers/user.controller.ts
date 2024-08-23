@@ -11,6 +11,8 @@ import mongoose, { ObjectId } from "mongoose";
 class UserController {
 
     public async userLogin(req: Request, res: Response): Promise<void> {
+        console.log("You hit the login api...");
+        
         const { email, password } = req.body;
         try {
             if (!email || !password) {
@@ -24,7 +26,7 @@ class UserController {
             });
 
             if (!user) {
-                res.status(404).json({ message: "User not found" });
+                res.status(404).json({ message: "Invalid username or email" });
                 return;
             }
             const isPasswordMatch = await bcrypt.compare(password, user.password);
