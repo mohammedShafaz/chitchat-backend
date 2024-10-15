@@ -20,6 +20,7 @@ class UserRoutes {
         this.router.patch('/update/profile-picture', authMiddleware, upload.single('profilePicture'), UserController.updateProfilePicture);
         this.router.patch('/update/cover-picture', authMiddleware, upload.single('coverPicture'), UserController.updateCoverPicture);
         this.router.post("/verify-otp", validateEmailVerification, UserController.userVerification);
+        this.router.get('/find',UserController.findUser);
     }
 }
 

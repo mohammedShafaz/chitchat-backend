@@ -11,8 +11,7 @@ import mongoose, { ObjectId } from "mongoose";
 class UserController {
 
     public async userLogin(req: Request, res: Response): Promise<void> {
-        console.log("You hit the login api...");
-        
+
         const { email, password } = req.body;
         try {
             if (!email || !password) {
@@ -159,7 +158,7 @@ class UserController {
                 return;
             }
 
-            const coverPicturePath =  req.file ? req.file.path : undefined;
+            const coverPicturePath = req.file ? req.file.path : undefined;
             const coverPictureUrl = coverPicturePath ? `${baseUrl}/coverPictures/${coverPicturePath.split('/').pop()}` : undefined;
             if (coverPictureUrl) {
                 user.coverPicture = coverPictureUrl;
@@ -300,6 +299,31 @@ class UserController {
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: "User verification failed" })
+        }
+    }
+
+    public async findUser(req: Request, res: Response): Promise<void> {
+        try {
+            const { email } = req.body;
+            if (!email) {
+                res.status(400).json({ message: "email or username is missing" });
+                return;
+            }
+            const user = await User.findOne({
+                $or: [
+                    { email: email },
+                    { username: email }
+                ]
+            });
+            if (!user) {
+                res.status(404).json({ message: "User not found" });
+                return;
+            }
+            res.status(200).json({ message: "Existing user" });
+            return;
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Error while fetching user" })
         }
     }
 }
