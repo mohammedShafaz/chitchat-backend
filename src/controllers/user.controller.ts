@@ -304,7 +304,7 @@ class UserController {
 
     public async findUser(req: Request, res: Response): Promise<void> {
         try {
-            const { email } = req.body;
+            const email = req.params.email;
             if (!email) {
                 res.status(400).json({ message: "email or username is missing" });
                 return;
@@ -315,11 +315,11 @@ class UserController {
                     { username: email }
                 ]
             });
-            if (!user) {
-                res.status(404).json({ message: "User not found" });
+            if (user) {
+                res.status(400).json({ message: "Existing user" });
                 return;
             }
-            res.status(200).json({ message: "Existing user" });
+            res.status(200).json({ message: "User not found" });
             return;
         } catch (error) {
             console.error(error);
