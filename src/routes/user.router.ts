@@ -11,6 +11,7 @@ class UserRoutes {
     }
     private routes(): void {
         this.router.post("/login", UserController.userLogin);
+        this.router.get('/find',UserController.findUser);
         this.router.post("/register", upload.fields([{ name: 'profilePicture', maxCount: 1 }, { name: 'coverPicture', maxCount: 1 }]), validateUserRegistration, UserController.createUser);
         this.router.get("/", authMiddleware, UserController.getCurrentUser);
         this.router.get("/:id", validateParamsId, UserController.getUserById);
@@ -20,7 +21,6 @@ class UserRoutes {
         this.router.patch('/update/profile-picture', authMiddleware, upload.single('profilePicture'), UserController.updateProfilePicture);
         this.router.patch('/update/cover-picture', authMiddleware, upload.single('coverPicture'), UserController.updateCoverPicture);
         this.router.post("/verify-otp", validateEmailVerification, UserController.userVerification);
-        this.router.get('/find',UserController.findUser);
     }
 }
 

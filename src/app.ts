@@ -34,7 +34,9 @@ export class App {
     private setupMiddleware(): void {
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
-        this.app.use(cors<Request>())
+        this.app.use(cors({
+            origin: '*',
+        }))
     }
 
     private setupDatabase(): void {
@@ -52,11 +54,11 @@ export class App {
         // Static path update
         this.app.use('/assets', express.static(path.join(__dirname, 'assets')));
     }
-    private setupSocket():void{
+    private setupSocket(): void {
         io.attach(this.server);
         initializeSocketEvents(io);
     }
-    
+
     public start(): void {
         this.server.listen(this.port, () => {
             console.log(`Server is running at http://localhost:${this.port}`);

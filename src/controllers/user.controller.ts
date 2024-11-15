@@ -81,7 +81,7 @@ class UserController {
                 res.status(400).json({ message: 'Username already exists' });
                 return;
             }
-            const hashedPassword = bcrypt.hashSync(password, hashSalt);
+            const hashedPassword = await bcrypt.hash(password, hashSalt);
             const userData = new User({
                 firstName,
                 lastName,
@@ -197,6 +197,8 @@ class UserController {
     }
 
     public async getUserById(req: Request, res: Response): Promise<void> {
+        console.log("getUserById");
+
         try {
             const userId = new mongoose.Types.ObjectId(req.params.id);
             if (!userId) {
@@ -281,10 +283,13 @@ class UserController {
     public async userVerification(req: Request, res: Response): Promise<void> {
         try {
             const { email, otp } = req.body;
-
+            if (!otp || otp.length !== 6) {
+                res.status(400).json({ message: "Invalid OTP format. OTP should be 6 digits." });
+                return;
+            }
             const isVerified = await otpService.verifyOtp(email, otp);
             if (isVerified) {
-                const user = await User.findOneAndUpdate({ email: email }, { isEmailVerified: true });
+                const user = await User.findOneAndUpdate({ email: email }, { isEmailVerified: true }, { new: true });
                 if (!user) {
                     res.status(404).json({ message: "User not found." });
                     return;
@@ -304,19 +309,21 @@ class UserController {
 
     public async findUser(req: Request, res: Response): Promise<void> {
         try {
-            const email = req.params.email;
-            if (!email) {
+            const emailOrUsername = req.query.email;
+            console.log(emailOrUsername);
+
+            if (!emailOrUsername) {
                 res.status(400).json({ message: "email or username is missing" });
                 return;
             }
             const user = await User.findOne({
                 $or: [
-                    { email: email },
-                    { username: email }
+                    { email: emailOrUsername },
+                    { username: emailOrUsername }
                 ]
             });
             if (user) {
-                res.status(400).json({ message: "Existing user" });
+                res.status(409).json({ message: "Existing user" });
                 return;
             }
             res.status(200).json({ message: "User not found" });
