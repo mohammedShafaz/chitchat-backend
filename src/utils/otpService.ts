@@ -1,7 +1,12 @@
 import otpGenerator from 'otp-generator';
 import { createClient } from 'redis';
+import config from '../config/config';
 
-const otpClient = createClient();
+const redisHost= config.redis_host;
+
+const otpClient = createClient({
+    url:`redis://${redisHost}:6379`
+});
 
 otpClient.on('error', (err) => {
     console.error('Redis client error', err);

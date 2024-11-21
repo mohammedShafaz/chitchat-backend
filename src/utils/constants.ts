@@ -9,5 +9,6 @@ export const EMAIL_PURPOSE = {
     forgot_pass: 'forgot password'
 }
 
-export const baseUrl = `http://localhost:${config.port}/assets/uploads`;
-
+export const baseUrl = config.node_env === 'production'
+    ? config.prod_base_url
+    : `http://localhost:${config.port}/${BASE_PATH}/assets/uploads`;

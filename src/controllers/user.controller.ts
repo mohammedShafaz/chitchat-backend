@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import User from "../models/user.model";
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 import { hashSalt, EMAIL_PURPOSE, baseUrl } from "../utils/constants";
 import otpService from '../utils/otpService'
 import emailService from "../utils/emailService";

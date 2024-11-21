@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import User from "../models/user.model";
 import Comment from "../models/comment.model";
+import { baseUrl } from "../utils/constants";
 
 
 class postController {
@@ -15,9 +16,7 @@ class postController {
             const author = req.user?.id;
             const media = req.files ? (req.files as Express.Multer.File[]).map(file => {
                 const fileType = file.mimetype.startsWith('image/') ? 'images' : '/videos';
-                const baseUrl = `http://localhost:${config.port}`
-
-                return `${baseUrl}/assets/uploads/${fileType}/${file.filename}`;
+                return `${baseUrl}/${fileType}/${file.filename}`;
             }) : [];
             const newPost = new Post({
                 author: new mongoose.Types.ObjectId(`${author}`),
