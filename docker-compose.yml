@@ -2,6 +2,8 @@ version: "3.3"
 services:
   chitchat-backend:
     image: node:18-alpine 
+    build: 
+      context: .
     ports:
       - "${PORT:-5000}:5000"
     restart: always
@@ -12,6 +14,7 @@ services:
       EMAIL_ID: "${EMAIL_ID}"
       EMAIL_PASSWORD: "${EMAIL_PASSWORD}"
       REDIS_HOST: "redis"
+      NODE_ENV: "${NODE_ENV}"
     env_file:
       - .env
     working_dir: /app/src
