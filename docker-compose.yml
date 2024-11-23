@@ -1,9 +1,7 @@
 version: "3.3"
 services:
   chitchat-backend:
-    image: node:18-alpine 
-    build: 
-      context: .
+    build: .
     ports:
       - "${PORT:-5000}:5000"
     restart: always
@@ -19,8 +17,8 @@ services:
       - .env
     working_dir: /app/src
     volumes:
-      - .:/app 
-    command: ["npm", "run", "dev"]
+      - .:/app
+      - /app/node_modules
   redis:
     image: redis:alpine
     restart: always
