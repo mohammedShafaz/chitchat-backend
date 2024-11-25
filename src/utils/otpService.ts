@@ -2,10 +2,10 @@ import otpGenerator from 'otp-generator';
 import { createClient } from 'redis';
 import config from '../config/config';
 
-const redisHost= config.redis_host;
+const redisHostUrl= config.redis_host;
 
 const otpClient = createClient({
-    url:`redis://${redisHost}:6379`
+    url:config.node_env==='production'?redisHostUrl:`redis://redis:6379`
 });
 
 otpClient.on('error', (err) => {
