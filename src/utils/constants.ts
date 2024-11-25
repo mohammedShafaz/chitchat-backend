@@ -10,5 +10,5 @@ export const EMAIL_PURPOSE = {
 }
 
 export const baseUrl = config.node_env === 'production'
-    ? config.prod_base_url
-    : `http://localhost:${config.port}/${BASE_PATH}/assets/uploads`;
+    ? `${config.prod_base_url}/assets/uploads`
+    : `http://localhost:${config.port}/assets/uploads`;
