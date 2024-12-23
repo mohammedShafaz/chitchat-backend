@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io";
 import { IMessageData, IMediaData } from "../utils/types";
+const waitingQueue: Socket[] = [];
 
 
 export function initializeSocketEvents(io: Server): void {
@@ -16,6 +17,40 @@ export function initializeSocketEvents(io: Server): void {
             }
 
         });
+
+        socket.on('find-random-chat', () => {
+            const peerSocket = waitingQueue.shift();
+
+            if (peerSocket !== undefined) {
+                const roomId = `room-${Date.now()}`;
+                peerSocket.join(roomId);
+                socket.join(roomId);
+                peerSocket.emit('random-chat-ready', { roomId });
+                socket.emit('random-chat-ready', { roomId });
+                console.log(`Random chat room created: ${roomId} with users ${peerSocket.id} and ${socket.id}`);
+            } else {
+                waitingQueue.push(socket);
+                console.log(`${socket.id} is waiting for a match`);
+                socket.emit('waiting-for-match');
+            }
+
+        });
+        socket.on('find-random-video', () => {
+            const peerSocket = waitingQueue.shift();
+            if (peerSocket !== undefined) {
+                const roomId = `video-room-${Date.now()}`;
+                peerSocket.join(roomId);
+                socket.join(roomId);
+
+                socket.emit('random-video-ready', { roomId });
+                peerSocket.emit('random-video-ready', { roomId });
+            } else {
+                waitingQueue.push(socket);
+                socket.emit('waiting-for-match', { message: "Waiting for another user to join..." });
+            }
+
+        });
+
 
         socket.on('share-media', (data: IMediaData) => {
             try {
@@ -79,6 +114,14 @@ export function initializeSocketEvents(io: Server): void {
         })
 
         socket.on('disconnect', () => {
+            const index = waitingQueue.indexOf(socket);
+            if (index !== -1) {
+                waitingQueue.splice(index, 1);
+            }
+            socket.rooms.forEach((roomId) => {
+                socket.leave(roomId);
+                io.to(roomId).emit('peer-disconnected', { message: "Your peer has disconnected." });
+            });
             console.log("User disconnected: ", socket.id);
 
         });

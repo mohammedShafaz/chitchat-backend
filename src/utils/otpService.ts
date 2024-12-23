@@ -1,20 +1,5 @@
 import otpGenerator from 'otp-generator';
-import { createClient } from 'redis';
-import config from '../config/config';
-
-const redisHostUrl= config.redis_host;
-
-const otpClient = createClient({
-    url:config.node_env==='production'?redisHostUrl:`redis://redis:6379`
-});
-
-otpClient.on('error', (err) => {
-    console.error('Redis client error', err);
-});
-
-otpClient.connect();
-
-
+import redisClient from './redis';
 
 const generateOtp = (): string => {
 
@@ -23,7 +8,7 @@ const generateOtp = (): string => {
 
 const storeOtp = async (email: string, otp: string): Promise<void> => {
     try {
-        await otpClient.set(`otp:${email}`, otp, { EX: 300 });
+        await redisClient.set(`otp:${email}`, otp, { EX: 300 });
     } catch (error) {
         console.error('Error storing OTP:', error);
         throw new Error('Failed to store OTP');
@@ -32,9 +17,9 @@ const storeOtp = async (email: string, otp: string): Promise<void> => {
 
 const verifyOtp = async (email: string, otp: string): Promise<boolean> => {
     try {
-        const storedOtp = await otpClient.get(`otp:${email}`);
+        const storedOtp = await redisClient.get(`otp:${email}`);
         if (storedOtp === otp) {
-            await otpClient.del(`otp:${email}`);
+            await redisClient.del(`otp:${email}`);
             return true;
         }
         return false;
